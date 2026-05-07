@@ -10,7 +10,10 @@ pipeline {
 
         stage('Checkout') {
             steps {
-                git 'https://github.com/ChaiSureshkumar217/demo-app9.git'
+                  git branch: 'master',
+                    url: 'https://github.com/ChaiSureshkumar217/demo-app9.git',
+                    credentialsId: 'github-token'
+               
             }
         }
 
