@@ -1,0 +1,209 @@
+# STEP 1: CHECK JAVA VERSION
+java -version
+
+# STEP 2: INSTALL MAVEN
+sudo apt update
+sudo apt install maven -y
+
+# STEP 3: CREATE MAVEN PROJECT
+mvn archetype:generate -DgroupId=com.example.app \
+-DartifactId=demo-app \
+-DarchetypeArtifactId=maven-archetype-quickstart \
+-DinteractiveMode=false
+
+# STEP 4: GO INTO PROJECT DIRECTORY
+cd demo-app
+
+# STEP 5: LIST FILES
+ls
+
+# STEP 6: EDIT pom.xml
+nano pom.xml
+
+
+  <project xmlns="http://maven.apache.org/POM/4.0.0"
+xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>com.example.app</groupId>
+    <artifactId>demo-app</artifactId>
+    <packaging>jar</packaging>
+    <version>1.0-SNAPSHOT</version>
+
+    <name>demo-app</name>
+    <url>http://maven.apache.org</url>
+
+    <dependencies>
+
+        <!-- Logback -->
+        <dependency>
+            <groupId>ch.qos.logback</groupId>
+            <artifactId>logback-classic</artifactId>
+            <version>1.4.14</version>
+        </dependency>
+
+        <!-- JUnit -->
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>4.13.2</version>
+            <scope>test</scope>
+        </dependency>
+
+        <!-- SLF4J -->
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+            <version>2.0.9</version>
+        </dependency>
+
+        <!-- Apache Commons -->
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-lang3</artifactId>
+            <version>3.14.0</version>
+        </dependency>
+
+    </dependencies>
+
+    <build>
+        <plugins>
+
+            <!-- Compiler Plugin -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.11.0</version>
+
+                <configuration>
+                    <source>17</source>
+                    <target>17</target>
+                </configuration>
+            </plugin>
+
+            <!-- Surefire Plugin -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>3.1.2</version>
+            </plugin>
+
+        </plugins>
+    </build>
+
+</project>
+
+
+  # STEP 7: CREATE App.java
+nano src/main/java/com/example/app/App.java
+
+  package com.example.app;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.apache.commons.lang3.StringUtils;
+
+public class App {
+
+    private static final Logger logger = LoggerFactory.getLogger(App.class);
+
+    public static void main(String[] args) {
+
+        String name = "CI/CD Pipeline";
+
+        if (StringUtils.isNotBlank(name)) {
+
+            String message = greet(name);
+
+            logger.info(message);
+            System.out.println(message);
+
+        } else {
+
+            logger.error("Name is empty!");
+        }
+    }
+
+    public static String greet(String name) {
+
+        return "Hello, " + name + "! Welcome to Maven CI/CD Demo.";
+    }
+}
+
+
+
+# STEP 8: CREATE AppTest.java
+nano src/test/java/com/example/app/AppTest.java
+
+  # STEP 9: BUILD PROJECT
+mvn clean install
+
+    # STEP 10: RUN APPLICATION
+mvn exec:java -Dexec.mainClass="com.example.app.App"
+
+
+  Hello, CI/CD Pipeline! Welcome to Maven CI/CD Demo.
+Hello, CI/CD Pipeline! Welcome to Maven CI/CD Demo.
+
+  # STEP 11: CREATE JENKINSFILE
+nano Jenkinsfile
+
+
+    pipeline {
+
+    agent any
+
+    tools {
+        maven 'Maven3'
+        jdk 'JDK17'
+    }
+
+    stages {
+
+        stage('Checkout') {
+
+            steps {
+                git 'https://github.com/Naveen04jan/demo-app.git'
+            }
+        }
+
+        stage('Build') {
+
+            steps {
+                sh 'mvn clean compile'
+            }
+        }
+
+        stage('Test') {
+
+            steps {
+                sh 'mvn test'
+            }
+        }
+
+        stage('Package') {
+
+            steps {
+                sh 'mvn package'
+            }
+        }
+    }
+}
+
+
+
+# STEP 12: PUSH TO GITHUB
+
+git init
+
+git add .
+
+git commit -m "Initial commit"
+
+git branch -M main
+
+git remote add origin YOUR_GITHUB_REPO_URL
+
+git push -u origin main
